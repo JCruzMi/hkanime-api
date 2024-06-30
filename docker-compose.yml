@@ -11,7 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile
     networks:
-      - huan-hkanime
+      - huanda-hkanime
 
 networks:
   huanda-hkanime:
