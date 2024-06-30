@@ -1,0 +1,18 @@
+services:
+  hkanime-api:
+    container_name: "hkanime-api"
+    image: "hkanime-api"
+    restart: always
+    environment:
+      WEB_HOST: ${WEB_HOST}
+      NODE_ENV: ${NODE_ENV}
+      TZ: ${TZ}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - huan-hkanime
+
+networks:
+  huanda-hkanime:
+    name: huanda-hkanime
