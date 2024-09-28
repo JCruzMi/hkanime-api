@@ -33,11 +33,6 @@ export class Monoschinos {
   };
 
   private sanitizeRecentEpisodes(data: RecentsNative[], page: number = 1): Recents {
-    console.log('-----------');
-    console.log('page');
-    console.log(page);
-    console.log('-----------');
-
     const data2: Result[] = data.map((item) => {
       const chopAnimeUrl = item.animeUrl.split('/');
       return {
