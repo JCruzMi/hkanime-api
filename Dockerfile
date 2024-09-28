@@ -68,7 +68,7 @@ ENV NPM_CONFIG_LOGLEVEL=warn
 
 COPY --chown=nodejs:nodejs package*.json ./
 
-
+RUN npx puppeteer browsers install chrome
 RUN npm install && npm update && npm cache clean --force
 
 
