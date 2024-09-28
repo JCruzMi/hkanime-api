@@ -1,37 +1,71 @@
 import axios from 'axios';
+import puppeteer from 'puppeteer';
 import * as cheerio from 'cheerio';
 import { RecentsPaginator, RecentsResult } from './types/recents.type';
 import { RecentsNative } from './types/recents-native.type';
-import { title } from 'process';
 import Casing from '../utils/casing';
 import { TopAiringNative } from './types/top-airing-native.type';
 import { TopAiringPaginator, TopAiringResult } from './types/top-airing.type';
 
 export class Monoschinos {
   private baseUrl = 'https://monoschinos2.com/';
-
   recentEpisodes = async (page: number): Promise<RecentsPaginator> => {
-    const { data } = await axios.get(this.baseUrl);
-    const $ = cheerio.load(data);
-
-    const data2: RecentsNative[] = [];
-    $('div.play').each((_index, element) => {
-      const liElement = $(element).closest('li');
-
-      const imgSrc = liElement.find('img').attr('src') || '';
-      const animeUrl = liElement.find('a').attr('href') || '';
-      const title = liElement.find('h2').text().trim();
-      const episode = liElement.find('span.episode').text().trim();
-
-      data2.push({
-        title,
-        imgSrc,
-        animeUrl,
-        episode,
-      });
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
-    return this.sanitizeRecentEpisodes(data2, page);
+    try {
+      const pageInstance = await browser.newPage();
+
+      await pageInstance.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
+          'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+          'Chrome/89.0.4389.82 Safari/537.36',
+      );
+
+      await pageInstance.goto(this.baseUrl, { waitUntil: 'networkidle2' });
+
+      await pageInstance.waitForSelector('div.play');
+
+      const data2: RecentsNative[] = await pageInstance.evaluate(() => {
+        const results: RecentsNative[] = [];
+
+        const playElements = document.querySelectorAll('div.play');
+
+        playElements.forEach((element) => {
+          const liElement = element.closest('li');
+
+          if (liElement) {
+            const img = liElement.querySelector('img');
+            const animeLink = liElement.querySelector('a');
+            const titleElement = liElement.querySelector('h2');
+            const episodeElement = liElement.querySelector('span.episode');
+
+            const imgSrc = img?.getAttribute('src') || '';
+            const animeUrl = animeLink?.getAttribute('href') || '';
+            const title = titleElement?.textContent?.trim() || '';
+            const episode = episodeElement?.textContent?.trim() || '';
+
+            results.push({
+              title,
+              imgSrc,
+              animeUrl,
+              episode,
+            });
+          }
+        });
+
+        return results;
+      });
+
+      return this.sanitizeRecentEpisodes(data2, page);
+    } catch (error) {
+      console.error('Error al obtener episodios recientes:', error);
+      throw error;
+    } finally {
+      await browser.close();
+    }
   };
 
   topAiring = async (page: number): Promise<TopAiringPaginator> => {
