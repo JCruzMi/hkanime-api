@@ -1,5 +1,5 @@
 import axios from 'axios';
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 import * as cheerio from 'cheerio';
 import { RecentsPaginator, RecentsResult } from './types/recents.type';
 import { RecentsNative } from './types/recents-native.type';
@@ -9,9 +9,12 @@ import { TopAiringPaginator, TopAiringResult } from './types/top-airing.type';
 
 export class Monoschinos {
   private baseUrl = 'https://monoschinos2.com/';
+
   recentEpisodes = async (page: number): Promise<RecentsPaginator> => {
+    let browser: Browser | null = null;
+
     try {
-      const browser = await puppeteer.launch({
+      browser = await puppeteer.launch({
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
       });
@@ -63,7 +66,13 @@ export class Monoschinos {
       console.error('Error al obtener episodios recientes:', error);
       throw error;
     } finally {
-      await browser.close();
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (closeError) {
+          console.error('Error al cerrar el navegador:', closeError);
+        }
+      }
     }
   };
 
