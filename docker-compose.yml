@@ -7,13 +7,21 @@ services:
       WEB_HOST: ${WEB_HOST}
       NODE_ENV: ${NODE_ENV}
       TZ: ${TZ}
+      REDIS_HOST: hkanime-redis
+      REDIS_PORT: 6379
     build:
       context: .
       dockerfile: Dockerfile
     networks:
       - huanda-hkanime
 
+  hkanime-redis:
+    container_name: "hkanime-redis"
+    image: "redis:alpine"
+    restart: always
+    networks:
+      - huanda-hkanime
+
 networks:
   huanda-hkanime:
     name: huanda-hkanime
-

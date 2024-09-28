@@ -10,6 +10,7 @@ import anify from './anify';
 import crunchyroll from './crunchyroll';
 import bilibili from './bilibili';
 import marin from './marin';
+import monoschinos from './monoschinos';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   await fastify.register(gogoanime, { prefix: '/gogoanime' });
@@ -21,6 +22,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   await fastify.register(crunchyroll, { prefix: '/crunchyroll' });
   await fastify.register(bilibili, { prefix: '/bilibili' });
   await fastify.register(marin, { prefix: '/marin' });
+  await fastify.register(monoschinos, { prefix: '/monoschinos' });
 
   fastify.get('/', async (request: any, reply: any) => {
     reply.status(200).send('Welcome to Consumet Anime 🗾');
