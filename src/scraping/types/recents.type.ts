@@ -1,10 +1,10 @@
-export interface Recents {
+export interface RecentsPaginator {
   currentPage: string;
   hasNextPage: boolean;
-  results: Result[];
+  results: RecentsResult[];
 }
 
-export interface Result {
+export interface RecentsResult {
   id: string;
   episodeId: string;
   episodeNumber: number;
