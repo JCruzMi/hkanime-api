@@ -10,12 +10,11 @@ import { TopAiringPaginator, TopAiringResult } from './types/top-airing.type';
 export class Monoschinos {
   private baseUrl = 'https://monoschinos2.com/';
   recentEpisodes = async (page: number): Promise<RecentsPaginator> => {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-
     try {
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
       const pageInstance = await browser.newPage();
 
       await pageInstance.setUserAgent(
