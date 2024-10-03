@@ -5,7 +5,7 @@ LABEL description="Consumet API (fastify) Docker Image"
 
 # Establecer variables de entorno
 ENV PUPPETEER_SKIP_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ENV NODE_ENV=production
 ENV NPM_CONFIG_LOGLEVEL=warn
 
