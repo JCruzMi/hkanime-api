@@ -40,6 +40,7 @@ ENV NPM_CONFIG_LOGLEVEL=warn
 
 COPY --chown=nodejs:nodejs package*.json ./
 
+RUN npx puppeteer
 
 RUN npm install --no-cache && npm update && npm cache clean --force
 
