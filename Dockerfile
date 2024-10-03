@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Solución para fuentes duplicadas
 RUN sed -i '3d' /etc/apt/sources.list.d/google-chrome.list
 
 RUN groupadd -r nodejs && useradd -r -g nodejs -s /bin/bash -d /home/nodejs nodejs
@@ -35,12 +34,15 @@ ENV NPM_CONFIG_LOGLEVEL=warn
 
 COPY --chown=nodejs:nodejs package*.json ./
 
+USER nodejs
+
 RUN npm install --no-cache
+
+# Solución para problemas de permisos en el cache de npm
+RUN chown -R nodejs:nodejs /home/nodejs/.npm
 
 COPY --chown=nodejs:nodejs . .
 
 EXPOSE 3000
-
-USER nodejs
 
 CMD ["npm", "start"]
