@@ -3,6 +3,8 @@ FROM ghcr.io/puppeteer/puppeteer:20.0.0 AS builder
 LABEL version="1.0.0"
 LABEL description="Consumet API (fastify) Docker Image"
 
+USER root
+
 RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
@@ -10,6 +12,9 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Solución para fuentes duplicadas
+RUN sed -i '3d' /etc/apt/sources.list.d/google-chrome.list
 
 RUN groupadd -r nodejs && useradd -r -g nodejs -s /bin/bash -d /home/nodejs nodejs
 
