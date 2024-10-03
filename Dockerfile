@@ -17,7 +17,7 @@ RUN sed -i '3d' /etc/apt/sources.list.d/google-chrome.list
 
 RUN groupadd -r nodejs && useradd -r -g nodejs -s /bin/bash -d /home/nodejs nodejs
 
-RUN mkdir -p /home/nodejs/app/node_modules && chown -R nodejs:nodejs /home/nodejs/app
+RUN mkdir -p /home/nodejs/app/node_modules /home/nodejs/.npm && chown -R nodejs:nodejs /home/nodejs/app /home/nodejs/.npm
 
 WORKDIR /home/nodejs/app
 
@@ -34,12 +34,13 @@ ENV NPM_CONFIG_LOGLEVEL=warn
 
 COPY --chown=nodejs:nodejs package*.json ./
 
+# Forzar permisos correctos para el directorio npm
+USER root
+RUN chown -R nodejs:nodejs /home/nodejs/.npm
+
 USER nodejs
 
 RUN npm install --no-cache
-
-# Solución para problemas de permisos en el cache de npm
-RUN chown -R nodejs:nodejs /home/nodejs/.npm
 
 COPY --chown=nodejs:nodejs . .
 
