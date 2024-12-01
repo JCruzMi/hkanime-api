@@ -17,8 +17,8 @@ import {
   TopAiringResult,
 } from './types/index.types';
 
-export class Monoschinos {
-  private baseUrl = 'https://monoschinos2.com/';
+export class AnimeFLV {
+  private baseUrl = 'https://www3.animeflv.net/';
 
   // info anime
   public infoAnime = async (id: string): Promise<InfoAnimes> => {
@@ -204,7 +204,7 @@ export class Monoschinos {
 
     const data2: TopAiringNative[] = [];
 
-    $('.ficha_efecto').each((index, element) => {
+    $('.ListAnimes li').each((index, element) => {
       const anime = {
         url: $(element).find('a').attr('href') || '',
         image: $(element).find('img').attr('src') || '',
@@ -255,7 +255,7 @@ export class Monoschinos {
       return {
         id: Casing.kebabCase(item.title),
         title: item.title,
-        image: item.image,
+        image: this.baseUrl + item.image,
         url: item.url,
         genre: item.genre,
       };

@@ -1,16 +1,18 @@
-import { FastifyRequest, FastifyReply, FastifyInstance, RegisterOptions } from 'fastify';
 import { PROVIDERS_LIST } from '@consumet/extensions';
 
-import gogoanime from './gogoanime';
-import animepahe from './animepahe';
-import zoro from './zoro';
+import { FastifyRequest, FastifyReply, FastifyInstance, RegisterOptions } from 'fastify';
+
 import nineanime from './9anime';
-import animefox from './animefox';
 import anify from './anify';
-import crunchyroll from './crunchyroll';
+import animeflv from './animeflv';
+import animefox from './animefox';
+import animepahe from './animepahe';
 import bilibili from './bilibili';
+import crunchyroll from './crunchyroll';
+import gogoanime from './gogoanime';
 import marin from './marin';
 import monoschinos from './monoschinos';
+import zoro from './zoro';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   await fastify.register(gogoanime, { prefix: '/gogoanime' });
@@ -23,6 +25,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   await fastify.register(bilibili, { prefix: '/bilibili' });
   await fastify.register(marin, { prefix: '/marin' });
   await fastify.register(monoschinos, { prefix: '/monoschinos' });
+  await fastify.register(animeflv, { prefix: '/animeflv' });
 
   fastify.get('/', async (request: any, reply: any) => {
     reply.status(200).send('Welcome to Consumet Anime 🗾');
