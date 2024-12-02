@@ -138,7 +138,14 @@ export class Monoschinos {
     try {
       browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--ignore-certificate-errors',
+          '--disable-gpu',
+        ],
+        dumpio: true,
       });
       const pageInstance = await browser.newPage();
 
