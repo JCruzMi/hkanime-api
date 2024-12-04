@@ -133,75 +133,37 @@ export class AnimeFLV {
   };
   // recent episodes
   public recentEpisodes = async (page: number): Promise<RecentsPaginator> => {
-    let browser: Browser | null = null;
-
     try {
-      browser = await puppeteer.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--ignore-certificate-errors',
-          '--disable-gpu',
-        ],
-        dumpio: true,
+      const { data } = await axios.get(this.baseUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        },
+        timeout: 10000
       });
-      const pageInstance = await browser.newPage();
-
-      await pageInstance.setUserAgent(
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
-          'AppleWebKit/537.36 (KHTML, like Gecko) ' +
-          'Chrome/89.0.4389.82 Safari/537.36',
-      );
-
-      await pageInstance.goto(this.baseUrl, { waitUntil: 'networkidle2' });
-
-      await pageInstance.waitForSelector('div.play');
-
-      const data2: RecentsNative[] = await pageInstance.evaluate(() => {
-        const results: RecentsNative[] = [];
-
-        const playElements = document.querySelectorAll('div.play');
-
-        playElements.forEach((element) => {
-          const liElement = element.closest('li');
-
-          if (liElement) {
-            const img = liElement.querySelector('img');
-            const animeLink = liElement.querySelector('a');
-            const titleElement = liElement.querySelector('h2');
-            const episodeElement = liElement.querySelector('span.episode');
-
-            const imgSrc = img?.getAttribute('src') || '';
-            const animeUrl = animeLink?.getAttribute('href') || '';
-            const title = titleElement?.textContent?.trim() || '';
-            const episode = episodeElement?.textContent?.trim() || '';
-
-            results.push({
-              title,
-              imgSrc,
-              animeUrl,
-              episode,
-            });
-          }
+  
+      const $ = cheerio.load(data);
+      const results: RecentsNative[] = [];
+  
+      $('div.play').each((_, element) => {
+        const liElement = $(element).closest('li');
+        const img = liElement.find('img');
+        const animeLink = liElement.find('a');
+        const titleElement = liElement.find('h2');
+        const episodeElement = liElement.find('span.episode');
+  
+        results.push({
+          title: titleElement.text().trim(),
+          imgSrc: img.attr('src') || '',
+          animeUrl: animeLink.attr('href') || '',
+          episode: episodeElement.text().trim(),
         });
-
-        return results;
       });
-
-      return this.sanitizeRecentEpisodes(data2, page);
+  
+      return this.sanitizeRecentEpisodes(results, page);
     } catch (error) {
       console.error('Error al obtener episodios recientes:', error);
       throw error;
-    } finally {
-      if (browser) {
-        try {
-          await browser.close();
-        } catch (closeError) {
-          console.error('Error al cerrar el navegador:', closeError);
-        }
-      }
     }
   };
   // top airing
