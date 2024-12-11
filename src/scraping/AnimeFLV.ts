@@ -187,7 +187,8 @@ export class AnimeFLV {
         episodeId: chopAnimeUrl[chopAnimeUrl.length - 1],
         episodeNumber: Number(item.episode) || 0,
         title: item.title,
-        image: this.baseUrl + item.imgSrc,
+        image: '',
+        //  this.baseUrl + item.imgSrc,
         url: item.animeUrl,
       };
     });
