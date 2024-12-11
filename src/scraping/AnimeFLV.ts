@@ -188,7 +188,7 @@ export class AnimeFLV {
         episodeNumber: Number(item.episode) || 0,
         title: item.title,
         image: item.imgSrc,
-        url: item.animeUrl,
+        url: this.baseUrl + item.animeUrl,
       };
     });
 
