@@ -81,17 +81,17 @@ export class AnimeFLV {
 
         return {
           // id: title ? Casing.kebabCase(title) : '0', // TODO fix, al descomnetar da error en la respuesta
-          // title,
-          // image,
-          // description,
-          // status,
-          // type: `${season} ${type}`,
-          // totalEpisodes: totalEpisodes ? Number(totalEpisodes) : 0,
-          // episodes,
-          // releaseDate,
-          // otherName,
-          // genres,
-          // subOrDub,
+          title,
+          image,
+          description,
+          status,
+          type: `${season} ${type}`,
+          totalEpisodes: totalEpisodes ? Number(totalEpisodes) : 0,
+          episodes,
+          releaseDate,
+          otherName,
+          genres,
+          subOrDub,
         };
       });
       return data as unknown as InfoAnimes;
