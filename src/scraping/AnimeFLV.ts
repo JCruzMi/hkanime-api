@@ -45,8 +45,9 @@ export class AnimeFLV {
       const data = await pageInstance.evaluate(() => {
         const subOrDub = 'Sub';
         const title = document.querySelector('h1')?.textContent?.trim();
-        const image = document.querySelector('img.bg-secondary')?.getAttribute('src');
-        const type = document.querySelector('dl dd:nth-of-type(1)')?.textContent?.trim();
+        console.log(title);
+        const image = document.querySelector('div.AnimeCover img')?.getAttribute('src');
+        const type = document.querySelector('span .Type')?.textContent?.trim();
         const releaseDate = document
           .querySelector('dl dd:nth-of-type(2)')
           ?.textContent?.trim();
@@ -68,53 +69,29 @@ export class AnimeFLV {
           ?.querySelector('div:nth-of-type(2)')
           ?.textContent?.trim()
           .replace(/^Temporada\s*/, '');
-        const totalEpisodes = document.querySelector('div.ep_count')?.textContent?.trim();
-        const description = document.querySelector('div.mb-3 > p')?.textContent?.trim();
-        const genres = Array.from(document.querySelectorAll('.lh-lg a span.badge')).map(
-          (span) => span.textContent?.trim(),
+        const totalEpisodes = document.querySelector('ul.ListCaps li');
+        const description = document
+          .querySelector('div.Description > p')
+          ?.textContent?.trim();
+        const genres = Array.from(document.querySelectorAll('nav.Nvgnrs a')).map((a) =>
+          a.textContent?.trim(),
         );
 
         const episodes: Episodes[] = [];
 
-        //TODO: fix, al descomnetar da error en la respuesta
-        // const listEpisodes = document.querySelectorAll('.eplist li');
-
-        // listEpisodes.forEach((item) => {
-        //   const a = item.querySelector('a.ko') as HTMLAnchorElement | null;
-
-        //   if (a) {
-        //     const h2 = a.querySelector('h2');
-        //     const id = h2?.textContent?.replace(/^Episodio\s*/, '') || '0';
-
-        //     const url = a.href;
-        //     const img = a.querySelector('img') as HTMLImageElement | null;
-
-        //     const image = img ? img.src : '';
-
-        //     episodes.push({
-        //       id: Casing.kebabCase(`${title}-${id}`),
-        //       number: Number(id),
-        //       url,
-        //       image,
-        //     });
-        //   } else {
-        //     console.error('El elemento <a> no se encontró.');
-        //   }
-        // });
-
         return {
           // id: title ? Casing.kebabCase(title) : '0', // TODO fix, al descomnetar da error en la respuesta
-          title,
-          image,
-          description,
-          status,
-          type: `${season} ${type}`,
-          totalEpisodes: totalEpisodes ? Number(totalEpisodes) : 0,
-          episodes,
-          releaseDate,
-          otherName,
-          genres,
-          subOrDub,
+          // title,
+          // image,
+          // description,
+          // status,
+          // type: `${season} ${type}`,
+          // totalEpisodes: totalEpisodes ? Number(totalEpisodes) : 0,
+          // episodes,
+          // releaseDate,
+          // otherName,
+          // genres,
+          // subOrDub,
         };
       });
       return data as unknown as InfoAnimes;
@@ -136,22 +113,24 @@ export class AnimeFLV {
     try {
       const { data } = await axios.get(this.baseUrl, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         },
-        timeout: 10000
+        timeout: 10000,
       });
-  
+
       const $ = cheerio.load(data);
       const results: RecentsNative[] = [];
-  
-      $('div.play').each((_, element) => {
+
+      $('.ListEpisodios li').each((_, element) => {
         const liElement = $(element).closest('li');
         const img = liElement.find('img');
         const animeLink = liElement.find('a');
-        const titleElement = liElement.find('h2');
+        const titleElement = liElement.find('strong.Title');
         const episodeElement = liElement.find('span.episode');
-  
+
         results.push({
           title: titleElement.text().trim(),
           imgSrc: img.attr('src') || '',
@@ -159,7 +138,7 @@ export class AnimeFLV {
           episode: episodeElement.text().trim(),
         });
       });
-  
+
       return this.sanitizeRecentEpisodes(results, page);
     } catch (error) {
       console.error('Error al obtener episodios recientes:', error);
