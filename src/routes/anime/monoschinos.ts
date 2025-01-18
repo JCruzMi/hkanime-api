@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest, RegisterOptions } from 'fastify';
+
 import { Redis } from 'ioredis';
 
 import { redis } from '../../main';
@@ -13,7 +14,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   fastify.get('/', (_, rp) => {
     rp.status(200).send({
       intro:
-        'Bienvenido al proveedor de MonosChinos: explora el sitio web oficial @ https://monoschinos2.com/',
+        'Bienvenido al proveedor de MonosChinos: explora el sitio web oficial @ https://monoschinos2.net/',
       routes: ['/recent-episodes', '/top-airing'],
     });
   });

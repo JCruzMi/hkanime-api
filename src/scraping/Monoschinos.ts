@@ -18,7 +18,7 @@ import {
 } from './types/index.types';
 
 export class Monoschinos {
-  private baseUrl = 'https://monoschinos2.com/';
+  private baseUrl = 'https://monoschinos2.net/';
 
   // info anime
   public infoAnime = async (id: string): Promise<InfoAnimes> => {
@@ -137,25 +137,28 @@ export class Monoschinos {
       // Primer intento con axios
       const { data } = await axios.get(this.baseUrl, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         },
-        timeout: 10000
+        timeout: 10000,
       });
-  
+
       const $ = cheerio.load(data);
       const results: RecentsNative[] = [];
-  
+
       $('div.play').each((_, element) => {
         const liElement = $(element).closest('li');
         const img = liElement.find('img');
         const animeLink = liElement.find('a');
         const titleElement = liElement.find('h2');
         const episodeElement = liElement.find('span.episode');
-  
+
         // Intentar obtener la URL real de la imagen desde data-src o data-lazy
-        const imgSrc = img.attr('data-src') || img.attr('data-lazy') || img.attr('src') || '';
-  
+        const imgSrc =
+          img.attr('data-src') || img.attr('data-lazy') || img.attr('src') || '';
+
         results.push({
           title: titleElement.text().trim(),
           imgSrc,
@@ -163,22 +166,27 @@ export class Monoschinos {
           episode: episodeElement.text().trim(),
         });
       });
-  
+
       // Si no hay imágenes reales (solo placeholders), usar Puppeteer como fallback
-      if (results.length > 0 && results.every(item => !item.imgSrc || item.imgSrc.includes('placeholder'))) {
+      if (
+        results.length > 0 &&
+        results.every((item) => !item.imgSrc || item.imgSrc.includes('placeholder'))
+      ) {
         return await this.recentEpisodesWithPuppeteer(page);
       }
-  
+
       return this.sanitizeRecentEpisodes(results, page);
     } catch (error) {
       console.error('Error con axios, intentando con Puppeteer:', error);
       return await this.recentEpisodesWithPuppeteer(page);
     }
   };
-  
-  private recentEpisodesWithPuppeteer = async (page: number): Promise<RecentsPaginator> => {
+
+  private recentEpisodesWithPuppeteer = async (
+    page: number,
+  ): Promise<RecentsPaginator> => {
     let browser: Browser | null = null;
-  
+
     try {
       browser = await puppeteer.launch({
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome',
@@ -193,27 +201,29 @@ export class Monoschinos {
         ],
         timeout: 30000,
       });
-  
+
       const pageInstance = await browser.newPage();
       await pageInstance.setDefaultNavigationTimeout(30000);
       await pageInstance.setDefaultTimeout(30000);
-  
+
       await pageInstance.setUserAgent(
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
       );
-  
-      await pageInstance.goto(this.baseUrl, { 
+
+      await pageInstance.goto(this.baseUrl, {
         waitUntil: 'networkidle2',
-        timeout: 30000
+        timeout: 30000,
       });
-  
+
       // Esperar a que las imágenes se carguen
-      await pageInstance.waitForSelector('div.play img[src]:not([src*="placeholder"])', { timeout: 10000 });
-  
+      await pageInstance.waitForSelector('div.play img[src]:not([src*="placeholder"])', {
+        timeout: 10000,
+      });
+
       const data2: RecentsNative[] = await pageInstance.evaluate(() => {
         const results: RecentsNative[] = [];
         const playElements = document.querySelectorAll('div.play');
-  
+
         playElements.forEach((element) => {
           const liElement = element.closest('li');
           if (liElement) {
@@ -221,7 +231,7 @@ export class Monoschinos {
             const animeLink = liElement.querySelector('a');
             const titleElement = liElement.querySelector('h2');
             const episodeElement = liElement.querySelector('span.episode');
-  
+
             results.push({
               title: titleElement?.textContent?.trim() || '',
               imgSrc: img?.getAttribute('src') || '',
@@ -230,10 +240,10 @@ export class Monoschinos {
             });
           }
         });
-  
+
         return results;
       });
-  
+
       return this.sanitizeRecentEpisodes(data2, page);
     } catch (error) {
       console.error('Error al obtener episodios recientes con Puppeteer:', error);
