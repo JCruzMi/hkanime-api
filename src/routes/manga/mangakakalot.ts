@@ -39,6 +39,8 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     }
   });
 
+
+
   fastify.get('/read', async (request: FastifyRequest, reply: FastifyReply) => {
     const chapterId = (request.query as { chapterId: string }).chapterId;
     const mangaId = (request.query as { mangaId: string }).mangaId;
