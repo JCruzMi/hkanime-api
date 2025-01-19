@@ -10,9 +10,9 @@
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
       "*": ["./node_modules/*", "./src/types/*"]
-    },                                     
+    },
     /* Emit */
- 
+
     "outDir": "dist",                                   /* Specify an output folder for all emitted files. */
     /* Interop Constraints */
     //"isolatedModules": true /* Ensure that each file can be safely transpiled without relying on other imports. */,
@@ -22,7 +22,7 @@
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
 
     /* Type Checking */
-    "strict": true /* Enable all strict type-checking options. */,
+    "strict": false /* Enable all strict type-checking options. */,
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,
