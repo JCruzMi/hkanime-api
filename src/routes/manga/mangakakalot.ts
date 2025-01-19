@@ -51,7 +51,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
 
     try {
       const res = await mangakakalot
-        .fetchChapterPages(chapterId,mangaId)
+        .fetchChapterPages(chapterId)
         .catch((err: Error) => reply.status(404).send({ message: err.message }));
 
       reply.status(200).send(res);
