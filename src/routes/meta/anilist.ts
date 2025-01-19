@@ -8,6 +8,7 @@ import { StreamingServers } from '@consumet/extensions/dist/models';
 import cache from '../../utils/cache';
 import { redis } from '../../main';
 import NineAnime from '@consumet/extensions/dist/providers/anime/9anime';
+import Gogoanime from '@consumet/extensions/dist/providers/anime/gogoanime';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   fastify.get('/', (_, rp) => {
@@ -342,6 +343,29 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       }
     },
   );
+
+  //anilist staff info from character id (for example: voice actors)
+  //http://127.0.0.1:3000/meta/anilist/staff/95095  (gives info of sukuna's voice actor (Junichi Suwabe) )
+  fastify.get("/staff/:id", async (request: FastifyRequest, reply: FastifyReply) => {
+    const id = (request.params as { id: string }).id;
+
+    const anilist = generateAnilistMeta();
+    try {
+      redis
+        ? reply.status(200).send(
+          await cache.fetch(
+            redis,
+            `anilist:staff;${id}`,
+            async () => await anilist.fetchStaffById(Number(id)),
+            60 * 60,
+          ),
+        )
+        : reply.status(200).send(await anilist.fetchStaffById(Number(id)));
+
+    } catch (err: any) {
+      reply.status(404).send({ message: err.message });
+    }
+  });
 };
 
 const generateAnilistMeta = (provider: string | undefined = undefined): Anilist => {
@@ -364,7 +388,8 @@ const generateAnilistMeta = (provider: string | undefined = undefined): Anilist 
       url: process.env.PROXY as string | string[],
     });
   } else {
-    return new Anilist(undefined, {
+    // default provider is gogoanime
+    return new Anilist(new Gogoanime(), {
       url: process.env.PROXY as string | string[],
     });
   }
