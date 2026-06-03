@@ -11,8 +11,8 @@ async function apiRequest(endpoint, options = {}) {
     headers: {
       'X-API-Key': API_KEY,
       'Content-Type': 'application/json',
-      ...options.headers
-    }
+      ...options.headers,
+    },
   });
   return response.json();
 }
@@ -22,11 +22,11 @@ async function apiRequest(endpoint, options = {}) {
 // ============================================
 async function searchAnime(query) {
   console.log(`\n Buscando: ${query}`);
-  
+
   const result = await apiRequest(
-    `/search?q=${encodeURIComponent(query)}&domain=animeav1.com`
+    `/search?q=${encodeURIComponent(query)}&domain=animeav1.com`,
   );
-  
+
   console.log(result);
   return result.data.results;
 }
@@ -36,15 +36,13 @@ async function searchAnime(query) {
 // ============================================
 async function getAnimeInfo(animeUrl) {
   console.log(`\n Obteniendo info de: ${animeUrl}`);
-  
-  const result = await apiRequest(
-    `/info?url=${encodeURIComponent(animeUrl)}`
-  );
-  
+
+  const result = await apiRequest(`/info?url=${encodeURIComponent(animeUrl)}`);
+
   console.log(`Título: ${result.data.title}`);
   console.log(`Episodios: ${result.data.totalEpisodes}`);
   console.log(`Géneros: ${result.data.genres.join(', ')}`);
-  
+
   return result.data;
 }
 
@@ -53,16 +51,18 @@ async function getAnimeInfo(animeUrl) {
 // ============================================
 async function getEpisodeLinks(episodeUrl) {
   console.log(`\n Obteniendo enlaces del episodio: ${episodeUrl}`);
-  
+
   const result = await apiRequest(
-    `/episode?url=${encodeURIComponent(episodeUrl)}`
+    `/episode?url=${encodeURIComponent(episodeUrl)}`,
   );
-  
+
   console.log(`\nEnlaces de descarga disponibles:`);
-  result.data.downloadLinks.forEach(link => {
-    console.log(`- ${link.quality} (${link.size}) - ${link.server}: ${link.url}`);
+  result.data.downloadLinks.forEach((link) => {
+    console.log(
+      `- ${link.quality} (${link.size}) - ${link.server}: ${link.url}`,
+    );
   });
-  
+
   return result.data;
 }
 
@@ -71,17 +71,17 @@ async function getEpisodeLinks(episodeUrl) {
 // ============================================
 async function getEpisodeLinksWithoutMega(episodeUrl) {
   console.log(`\n Obteniendo enlaces (sin Mega): ${episodeUrl}`);
-  
+
   // Por defecto Mega ya está excluido, pero puedes ser explícito
   const result = await apiRequest(
-    `/episode?url=${encodeURIComponent(episodeUrl)}&includeMega=false`
+    `/episode?url=${encodeURIComponent(episodeUrl)}&includeMega=false`,
   );
-  
+
   console.log(`\nServidores SUB (sin Mega):`);
-  result.data.servers.sub.forEach(server => {
+  result.data.servers.sub.forEach((server) => {
     console.log(`- ${server.server}: ${server.url}`);
   });
-  
+
   return result.data;
 }
 
@@ -90,16 +90,16 @@ async function getEpisodeLinksWithoutMega(episodeUrl) {
 // ============================================
 async function getEpisodeLinksWithMega(episodeUrl) {
   console.log(`\n Obteniendo enlaces (con Mega): ${episodeUrl}`);
-  
+
   const result = await apiRequest(
-    `/episode?url=${encodeURIComponent(episodeUrl)}&includeMega=true`
+    `/episode?url=${encodeURIComponent(episodeUrl)}&includeMega=true`,
   );
-  
+
   console.log(`\nServidores SUB (con Mega):`);
-  result.data.servers.sub.forEach(server => {
+  result.data.servers.sub.forEach((server) => {
     console.log(`- ${server.server}: ${server.url}`);
   });
-  
+
   return result.data;
 }
 
@@ -109,19 +109,19 @@ async function getEpisodeLinksWithMega(episodeUrl) {
 async function getEpisodeLinksCustomFilter(episodeUrl, excludeServers = []) {
   console.log(`\n Obteniendo enlaces (filtro custom): ${episodeUrl}`);
   console.log(`Servidores excluidos: ${excludeServers.join(', ')}`);
-  
+
   const params = new URLSearchParams({
     url: episodeUrl,
-    excludeServers: excludeServers.join(',')
+    excludeServers: excludeServers.join(','),
   });
-  
+
   const result = await apiRequest(`/episode?${params}`);
-  
+
   console.log(`\nServidores disponibles:`);
-  result.data.servers.sub.forEach(server => {
+  result.data.servers.sub.forEach((server) => {
     console.log(`- ${server.server}: ${server.url}`);
   });
-  
+
   return result.data;
 }
 
@@ -133,36 +133,37 @@ async function ejemploCompleto() {
     // 1. Buscar anime
     console.log('='.repeat(50));
     const searchResults = await searchAnime('naruto');
-    
+
     if (searchResults.length === 0) {
       console.log('No se encontraron resultados');
       return;
     }
-    
+
     console.log(`\n Encontrados ${searchResults.length} resultados`);
     console.log(`Primer resultado: ${searchResults[0].title}`);
-    
+
     // 2. Obtener info del primer resultado
     console.log('\n' + '='.repeat(50));
     const animeUrl = searchResults[0].url;
     const animeInfo = await getAnimeInfo(animeUrl);
-    
+
     // 3. Obtener enlaces del primer episodio (sin Mega por defecto)
     console.log('\n' + '='.repeat(50));
     const firstEpisode = animeInfo.episodes[0];
     const episodeLinks = await getEpisodeLinks(firstEpisode.url);
-    
+
     // 4. Obtener enlaces incluyendo Mega
     console.log('\n' + '='.repeat(50));
-    const episodeLinksWithMega = await getEpisodeLinksWithMega(firstEpisode.url);
-    
+    const episodeLinksWithMega = await getEpisodeLinksWithMega(
+      firstEpisode.url,
+    );
+
     // 5. Obtener enlaces con filtro personalizado
     console.log('\n' + '='.repeat(50));
     await getEpisodeLinksCustomFilter(firstEpisode.url, ['mega', 'fembed']);
-    
+
     console.log('\n' + '='.repeat(50));
     console.log(' Ejemplo completo ejecutado exitosamente!');
-    
   } catch (error) {
     console.error(' Error:', error.message);
   }
@@ -175,20 +176,19 @@ async function listarTodosLosEpisodios(animeUrl) {
   try {
     console.log('='.repeat(50));
     console.log(' Listando todos los episodios...');
-    
+
     // Obtener info del anime
     const animeInfo = await getAnimeInfo(animeUrl);
-    
+
     console.log(`\n ${animeInfo.title}`);
     console.log(` Score: ${animeInfo.score}`);
     console.log(` Total de episodios: ${animeInfo.totalEpisodes}`);
     console.log(`\nEpisodios disponibles:`);
-    
-    animeInfo.episodes.forEach(ep => {
+
+    animeInfo.episodes.forEach((ep) => {
       console.log(`  ${ep.number}. ${ep.title || 'Episodio ' + ep.number}`);
       console.log(`     URL: ${ep.url}`);
     });
-    
   } catch (error) {
     console.error(' Error:', error.message);
   }
@@ -201,26 +201,30 @@ async function compararServidores(episodeUrl) {
   try {
     console.log('='.repeat(50));
     console.log(' Comparando disponibilidad de servidores...\n');
-    
+
     // Sin Mega (default)
     const sinMega = await apiRequest(
-      `/episode?url=${encodeURIComponent(episodeUrl)}`
+      `/episode?url=${encodeURIComponent(episodeUrl)}`,
     );
-    
+
     // Con Mega
     const conMega = await apiRequest(
-      `/episode?url=${encodeURIComponent(episodeUrl)}&includeMega=true`
+      `/episode?url=${encodeURIComponent(episodeUrl)}&includeMega=true`,
     );
-    
+
     console.log(`Sin Mega: ${sinMega.data.servers.sub.length} servidores SUB`);
-    sinMega.data.servers.sub.forEach(s => console.log(`  - ${s.server}`));
-    
-    console.log(`\nCon Mega: ${conMega.data.servers.sub.length} servidores SUB`);
-    conMega.data.servers.sub.forEach(s => console.log(`  - ${s.server}`));
-    
-    const diferencia = conMega.data.servers.sub.length - sinMega.data.servers.sub.length;
-    console.log(`\n Diferencia: ${diferencia} servidor(es) adicional(es) con Mega`);
-    
+    sinMega.data.servers.sub.forEach((s) => console.log(`  - ${s.server}`));
+
+    console.log(
+      `\nCon Mega: ${conMega.data.servers.sub.length} servidores SUB`,
+    );
+    conMega.data.servers.sub.forEach((s) => console.log(`  - ${s.server}`));
+
+    const diferencia =
+      conMega.data.servers.sub.length - sinMega.data.servers.sub.length;
+    console.log(
+      `\n Diferencia: ${diferencia} servidor(es) adicional(es) con Mega`,
+    );
   } catch (error) {
     console.error(' Error:', error.message);
   }
@@ -295,4 +299,3 @@ Para usar esta API, necesitas:
  Descomenta alguna función arriba para probar!
  Documentación: https://github.com/FxxMorgan/anime1v-api
 `);
-
